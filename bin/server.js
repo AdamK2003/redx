@@ -8,7 +8,7 @@ const assert = require("assert");
 const makeInventoryLink = require("../data/inventorylink");
 const { writePackedObject } = require("../lib/objectloader");
 const { getRecordUri, getRecordIdType, fetchRecord, fetchDirectoryChildren, parseRecordUri, getParentDirectoryRecordStub, isRecordUri, areRecordsEqual, isAssetUri } = require("../lib/cloudx");
-const { searchRecords, getRecord, buildChildrenQuery, MAX_SIZE, buildExactRecordQuery, buildNotDeletedQuery } = require("../lib/db");
+const { searchRecords, getRecord, buildSearchQuery, buildChildrenQuery, MAX_SIZE, buildExactRecordQuery, buildNotDeletedQuery } = require("../lib/db");
 const { sendSearchResponse, buildFulltextQuery, processLocalHits, LINK_ENDPOINT_VERSION, sendBrowseResponse } = require("../lib/server-utils");
 const guillefix = require("../lib/guillefix");
 const routeAliases = require("../lib/route-aliases");
@@ -71,30 +71,24 @@ app.get(defineAlias("search", "/search.:format"), [
 	query("q").trim().optional(),
 	query("image_weight").isFloat({ min: 0, max: 1 }).toFloat().optional(),
 	listReqParams,
-], (req, res, next) => {
+], async (req, res, next) => {
 	let { format, type, q, size, from, v, image_weight } = _.defaults(matchedData(req), {
 		image_weight: 0, size: 10, from: 0, q: "", v: 0
 	});
-	if(!validateRequest(req))
-		return;
+	if(!validateRequest(req)) return;
 
-	let recordTypes = [], objectTypes = [];
+	console.log(`search: ${q}`);
+	let types = [];
+
 	for(let t of type) {
-		if(["directory", "link", "object", "world"].indexOf(t) !== -1)
-			recordTypes.push(String(t));
-		else
-			objectTypes.push(String(t));
+		types.push(String(t));
 	}
 
-	let typeQueries = [];
-	if(recordTypes.length)
-		typeQueries.push({ terms: { recordType: recordTypes } });
-	if(objectTypes.length)
-		typeQueries.push({ terms: { objectType: objectTypes } });
 
-	promiseTry(() => {
+
+	await promiseTry( () => {
 		// if(image_weight === 0 || q === "")
-		return { hits: [], total: 0 };
+		return { hits: [], total: 0 }; // guillefix stub
 
 		// return guillefix.searchRecordsCached({
 		// 	f: "1e-9", // fuzzy
@@ -105,17 +99,10 @@ app.get(defineAlias("search", "/search.:format"), [
 		// 	console.log(`guillefix endpoint error: ${err.stack || err}`);
 		// 	return { hits: [], total: 0 };
 		// });
-	}).then(({ hits: imageSearchHits }) => {
-		let fulltextQuery = buildFulltextQuery(q, imageSearchHits, image_weight);
+	}).then(async ({ hits: imageSearchHits }) => {
+		// let fulltextQuery = buildFulltextQuery(q, imageSearchHits, image_weight);
 
-		return searchRecords({
-			bool: {
-				must: fulltextQuery || [],
-				should: typeQueries,
-				minimum_should_match: typeQueries.length ? 1 : 0,
-				filter: [buildNotDeletedQuery()],
-			}
-		}, size, from);
+		return await searchRecords(buildSearchQuery(q, types, ['simpleName', 'ownerPathNameSearchable', 'tagsSearchable']), size, from);
 	}).then(({ total, hits }) => {
 		processLocalHits(hits, req.buildUrl.bind(req), format);
 		sendSearchResponse(res, format, hits, { v, total, });
