@@ -115,7 +115,7 @@ app.get(defineAlias("search-guillefix", "/search-guillefix.:format"), [
 	query("t").isFloat().toFloat().optional(),
 	query("i").isFloat().toFloat().optional(),
 	listReqParams,
-], (req, res, next) => {
+], async (req, res, next) => {
 	const { format, q, f, t, i, size, from, v } = _.defaults(matchedData(req), {
 		size: 10, from: 0, q: "", v: 0
 	});
@@ -124,7 +124,7 @@ app.get(defineAlias("search-guillefix", "/search-guillefix.:format"), [
 
 	const fulltextQuery = buildFulltextQuery(q);
 
-	const localHits = searchRecords({
+	const localHits = await searchRecords({
 		bool: {
 			must: fulltextQuery || [],
 			filter: [

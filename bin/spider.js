@@ -66,7 +66,8 @@ function handleDeletedDirectoryRecord(rec, localChildren, localPendingChildren) 
 	});
 }
 
-function indexDirectoryRecord(rec) {
+async function indexDirectoryRecord(rec) {
+	console.log('indexDirectoryRecord', rec);
 	if(isRecordIgnored(rec)) {
 		// delete all indexed children and then itself
 		console.log(`indexDirectoryRecord ${recordToString(rec)} ignored`);
@@ -74,56 +75,51 @@ function indexDirectoryRecord(rec) {
 	}
 
 	let isRecordDeleted = false;
-	return Promise.all([
+	const [apiChildren, localChildren, localPendingChildren] = await Promise.all([
 		cloudx.fetchDirectoryChildren(rec).catch(err => {
-			if(cloudx.isPermanentHttpError(err)) {
+			if (cloudx.isPermanentHttpError(err)) {
 				console.log(`indexDirectoryRecord ${recordToString(rec)} http error ${err.message || err}`);
 				isRecordDeleted = true;
 				return [];
 			}
 			throw err;
 		}),
-		db.searchRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res => res.hits),
-		db.searchPendingRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res => res.hits),
-	]).then(([apiChildren, localChildren, localPendingChildren]) => {
-		if(isRecordDeleted)
-			return handleDeletedDirectoryRecord(localChildren, localPendingChildren);
+		await db.searchRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res => res.hits),
+		await db.searchPendingRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res_1 => res_1.hits),
+	]);
+	if (isRecordDeleted)
+		return handleDeletedDirectoryRecord(localChildren, localPendingChildren);
+	if (apiChildren.some(child => child.name === ".noindex"))
+		return handleIgnoredDirectoryRecord(rec);
+	const apiChildrenById = indexBy(apiChildren, "id");
+	const localChildrenById = indexBy(localChildren, "id");
+	const localPendingChildrenById = indexBy(localPendingChildren, "id");
+	await Promise.all([
+		...apiChildren.map(child_1 => {
+			if (localPendingChildrenById.has(child_1.id))
+				return;
+			if (localChildrenById.has(child_1.id) && !isRecordNewer(child_1, localChildrenById.get(child_1.id)))
+				return;
+			if (isRecordIgnored(child_1))
+				return;
+			console.log(`indexDirectoryRecord ${recordToString(rec)} added/updated child ${recordToString(child_1)}`);
+			return db.indexPendingRecord(child_1);
+		}), // index new records as pending
+		...localChildren.map(child_2 => {
+			if (apiChildrenById.has(child_2.id))
+				return;
+			console.log(`indexDirectoryRecord ${recordToString(rec)} removed child ${recordToString(child_2)}`);
+			return setRecordDeleted(child_2);
+		}),
+		...localPendingChildren.map(child_3 => {
+			if (apiChildrenById.has(child_3.id))
+				return;
 
-		if(apiChildren.some(child => child.name === ".noindex"))
-			return handleIgnoredDirectoryRecord(rec);
-
-		const apiChildrenById = indexBy(apiChildren, "id");
-		const localChildrenById = indexBy(localChildren, "id");
-		const localPendingChildrenById = indexBy(localPendingChildren, "id");
-
-		return Promise.all([
-			...apiChildren.map(child => {
-				if(localPendingChildrenById.has(child.id))
-					return;
-				if(localChildrenById.has(child.id) && !isRecordNewer(child, localChildrenById.get(child.id)))
-					return;
-				if(isRecordIgnored(child))
-					return;
-				console.log(`indexDirectoryRecord ${recordToString(rec)} added/updated child ${recordToString(child)}`);
-				return db.indexPendingRecord(child);
-			}), // index new records as pending
-			...localChildren.map(child => {
-				if(apiChildrenById.has(child.id))
-					return;
-				console.log(`indexDirectoryRecord ${recordToString(rec)} removed child ${recordToString(child)}`);
-				return setRecordDeleted(child);
-			}),
-			...localPendingChildren.map(child => {
-				if(apiChildrenById.has(child.id))
-					return;
-
-				console.log(`indexDirectoryRecord ${recordToString(rec)} removed pending child ${recordToString(child)}`);
-				return deletePendingRecord(child);
-			}),
-		]).then(() => {
-			return maybeIndexRecord(rec);
-		});
-	})
+			console.log(`indexDirectoryRecord ${recordToString(rec)} removed pending child ${recordToString(child_3)}`);
+			return deletePendingRecord(child_3);
+		}),
+	]);
+	return maybeIndexRecord(rec);
 }
 
 async function indexLinkRecord(rec) {
@@ -193,6 +189,7 @@ async function deletePendingRecord(rec) {
 
 let deletedPendingRecordsThisLoop;
 async function indexPendingRecords() {
+	console.log("indexPendingRecords");
 	const records = await db.getSomePendingRecords(BATCH_SIZE)
 	if(!records.length)
 		return;
@@ -210,17 +207,17 @@ async function indexPendingRecords() {
 			return;
 		}
 
-		return backOff(() => {
+		return backOff(async () => {
 			console.log(`processPendingRecord ${recordToString(rec)}`);
 			if(rec.recordType === "directory")
-				return indexDirectoryRecord(rec);
+				return await indexDirectoryRecord(rec);
 			if(rec.recordType === "link")
-				return indexLinkRecord(rec);
+				return await indexLinkRecord(rec);
 			if(rec.recordType === "object")
-				return indexObjectRecord(rec);
-			if(rec.recordType === "world")
-				return indexWorldRecord(rec);
-			return indexGenericRecord(rec);
+				return await indexObjectRecord(rec);
+			if(rec.recordType === "world")d
+				return await indexWorldRecord(rec);
+			return await indexGenericRecord(rec);
 		}).then(() => {
 			return deletePendingRecord(rec);
 		});
