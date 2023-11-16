@@ -231,11 +231,11 @@ async function getAllDirectoryRecords(inclDeleted = false) {
 		{ term: { recordType: "directory" } },
 	];
 	if(!inclDeleted)
-		filter.push({ term: { isDeleted: false } });
+		filter.push(meiliFilter('isDeleted', false));
 
 	const res = await db.searchRecords({
-		bool: { filter },
-	}, Infinity);
+		filter: filter,
+	}, Infinity, 0);
 
 	return res.hits;
 }

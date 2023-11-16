@@ -8,7 +8,7 @@ const assert = require("assert");
 const makeInventoryLink = require("../data/inventorylink");
 const { writePackedObject } = require("../lib/objectloader");
 const { getRecordUri, getRecordIdType, fetchRecord, fetchDirectoryChildren, parseRecordUri, getParentDirectoryRecordStub, isRecordUri, areRecordsEqual, isAssetUri } = require("../lib/cloudx");
-const { searchRecords, getRecord, buildSearchQuery, buildChildrenQuery, MAX_SIZE, buildExactRecordQuery, buildNotDeletedQuery } = require("../lib/db");
+const { searchRecords, getRecord, buildSearchQuery, buildChildrenQuery, MAX_SIZE, buildExactRecordQuery, buildNotDeletedQuery, meiliFilter, meiliJoinFilter, meiliMultiFilter } = require("../lib/db");
 const { sendSearchResponse, buildFulltextQuery, processLocalHits, LINK_ENDPOINT_VERSION, sendBrowseResponse } = require("../lib/server-utils");
 const guillefix = require("../lib/guillefix");
 const routeAliases = require("../lib/route-aliases");
@@ -77,7 +77,7 @@ app.get(defineAlias("search", "/search.:format"), [
 	});
 	if(!validateRequest(req)) return;
 
-	console.log(`search: ${q}`);
+	console.log(`search`, q, size, from);
 	let types = [];
 
 	for(let t of type) {
@@ -122,18 +122,10 @@ app.get(defineAlias("search-guillefix", "/search-guillefix.:format"), [
 	if(!validateRequest(req))
 		return;
 
-	const fulltextQuery = buildFulltextQuery(q);
+	const fulltextQuery = buildSearchQuery(q, ['object'], ['simpleName', 'ownerPathNameSearchable', 'tagsSearchable'], false);
 
-	const localHits = await searchRecords({
-		bool: {
-			must: fulltextQuery || [],
-			filter: [
-				{ term: { recordType: "object" } },
-				buildNotDeletedQuery(),
-			]
-		}
-	}, size, from).then(({ total, hits }) => {
-		processLocalHits(hits, req.buildUrl.bind(req), format);
+	const localHits = await searchRecords(fulltextQuery, size, from).then(({ total, hits }) => {
+		processLocalHits(hits, req.buildUrl.bind(req), format);s
 		return { total, hits };
 	});
 
@@ -196,7 +188,9 @@ function getParentDirectoryRecords(rec, depth, includeSelf = true) {
 	depth = Math.max(depth, 1); // skip Inventory
 
 	const should = [];
+	let names = [];
 	for(let i = Math.min(depth, parts.length - 1); i < parts.length; i++) {
+		names.push(parts[i]);
 		should.push({
 			bool: {
 				filter: [
@@ -207,17 +201,23 @@ function getParentDirectoryRecords(rec, depth, includeSelf = true) {
 		});
 	}
 
-	const query = {
-		bool: {
-			should,
-			minimum_should_match: 1,
-			filter: [
-				{ term: { recordType: "directory" } },
-				{ term: { ownerId: String(rec.ownerId) } },
-				buildNotDeletedQuery(),
-			],
-		}
-	};
+	let filter = [];
+	filter.push(meiliFilter('ownerId', rec.ownerId))
+	filter.push(meiliMultiFilter('name', names, '=', true))
+
+	let query = buildSearchQuery("", ["directory"], null, false, filter, "AND");
+
+	// const query2 = {
+	// 	bool: {
+	// 		should,
+	// 		minimum_should_match: 1,
+	// 		filter: [
+	// 			{ term: { recordType: "directory" } },
+	// 			{ term: { ownerId: String(rec.ownerId) } },
+	// 			buildNotDeletedQuery(),
+	// 		],
+	// 	}
+	// };
 
 	return searchRecords(query, parts.length, 0).then(({ total, hits }) => {
 		return _.sortBy(hits, h => h.path.length);
