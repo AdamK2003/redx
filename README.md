@@ -47,7 +47,7 @@ RedX is a Resonite public folder/item indexer and search engine.
 
 > This configuration will be automated in the future.
 
-5. `cd` back to the root directory and run `npm run server` to start the server. (You won't see any items in the frontend until you run the spider for the first time.)
+5. `cd` back to the root directory and run `npm run server` to start the server. (You won't see any items in the frontend until you run the spider for the first time.) You can use a systemd service or a process manager like PM2 to keep the server running in the background and run it on system startup.
 6. Run the spider with `npm run spider`. This will take a while to finish, but you should see items appearing in the frontend as they're indexed. You can use a cronjob to run this on a schedule.
 
 ![](doc/red.jpg)
