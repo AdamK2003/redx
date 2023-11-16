@@ -34,7 +34,7 @@ function AppSidebar({ state, dispatch }) {
 			</Space>
 			<Divider />
 			<Space direction="vertical">
-				<Checkbox
+				{/* <Checkbox
 					checked={state.imageEnabled}
 					onChange={e => dispatch({ type: "setImageEnabled", payload: e.target.checked })}
 				>Search Thumbnails</Checkbox>
@@ -61,7 +61,7 @@ function AppSidebar({ state, dispatch }) {
 						/>
 					</Col>
 				</Row>
-				<div className="AppSidebar-powered-by">(uses AI service by <a target="_blank" rel="noreferrer" href="https://github.com/guillefix/">guillefix</a>)</div>
+				<div className="AppSidebar-powered-by">(uses AI service by <a target="_blank" rel="noreferrer" href="https://github.com/guillefix/">guillefix</a>)</div> */}
 			</Space>
 		</>
 	);
