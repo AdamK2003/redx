@@ -72,8 +72,8 @@ app.get(defineAlias("search", "/search.:format"), [
 	query("image_weight").isFloat({ min: 0, max: 1 }).toFloat().optional(),
 	listReqParams,
 ], async (req, res, next) => {
-	let { format, type, q, size, from, v, image_weight } = _.defaults(matchedData(req), {
-		image_weight: 0, size: 10, from: 0, q: "", v: 0
+	let { format, type, q, size, from, v, image_weight, search_tags } = _.defaults(matchedData(req), {
+		image_weight: 0, size: 10, from: 0, q: "", v: 0, search_tags: true
 	});
 	if(!validateRequest(req)) return;
 
