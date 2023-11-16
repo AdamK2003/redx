@@ -187,25 +187,30 @@ function getParentDirectoryRecords(rec, depth, includeSelf = true) {
 
 	depth = Math.max(depth, 1); // skip Inventory
 
-	const should = [];
-	let names = [];
+	// const should = [];
+	// let names = [];
+	// let paths = [];
+	let filterExpressions = [];
 	for(let i = Math.min(depth, parts.length - 1); i < parts.length; i++) {
-		names.push(parts[i]);
-		should.push({
-			bool: {
-				filter: [
-					{ term: { path: String(parts.slice(0, i).join("\\")) } },
-					{ term: { "name.name": String(parts[i]) } }
-				]
-			}
-		});
+		let path = (parts.slice(0, i).join("\\"));
+		let name = (parts[i]);
+
+		filterExpressions.push(meiliJoinFilter([meiliFilter('path', path), meiliFilter('name', name)], 'AND'));
+		// should.push({
+		// 	bool: {
+		// 		filter: [
+		// 			{ term: { path: String(parts.slice(0, i).join("\\")) } },
+		// 			{ term: { "name.name": String(parts[i]) } }
+		// 		]
+		// 	}
+		// });
 	}
 
 	let filter = [];
-	filter.push(meiliFilter('ownerId', rec.ownerId))
-	filter.push(meiliMultiFilter('name', names, '=', true))
+	filter.push(meiliFilter('ownerId', rec.ownerId));
+	filter.push(meiliJoinFilter(filterExpressions, 'OR'));
 
-	let query = buildSearchQuery("", ["directory"], null, false, filter, "AND");
+	let query = buildSearchQuery("", ["directory"], null, false, filter, "AND", false);
 
 	// const query2 = {
 	// 	bool: {
@@ -244,6 +249,7 @@ app.get(defineAlias("parent-link", "/parent-link.:format"), [
 
 		return getParentDirectoryRecords(rec, depth);
 	}).then(parents => {
+		console.log(parents);
 		if(!parents.length)
 			throw "404";
 		const parentRec = parents[0];
