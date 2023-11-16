@@ -102,7 +102,10 @@ app.get(defineAlias("search", "/search.:format"), [
 	}).then(async ({ hits: imageSearchHits }) => {
 		// let fulltextQuery = buildFulltextQuery(q, imageSearchHits, image_weight);
 
-		return await searchRecords(buildSearchQuery(q, types, ['simpleName', 'ownerPathNameSearchable', 'tagsSearchable']), size, from);
+		let where = ['simpleName', 'ownerPathNameSearchable'];
+		if(search_tags) where.push('tagsSearchable');
+
+		return await searchRecords(buildSearchQuery(q, types, where), size, from);
 	}).then(({ total, hits }) => {
 		processLocalHits(hits, req.buildUrl.bind(req), format);
 		sendSearchResponse(res, format, hits, { v, total, });
