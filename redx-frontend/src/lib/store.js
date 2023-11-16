@@ -1,9 +1,10 @@
 import { useReducer } from "react";
-import { typeOptions } from "./constants";
+import { typeOptions, searchTypeOptions } from "./constants";
 
 const initialState = {
 	q: "",
 	types: typeOptions.filter(o => o.default === undefined || o.default).map(o => o.value),
+	searchTypes: searchTypeOptions.filter(o => o.default === undefined || o.default).map(o => o.value),
 	from: 0,
 	size: 50,
 	imageEnabled: false,
@@ -23,6 +24,11 @@ function reducer(state, { type, payload }) {
 			if (payload.checked)
 				newTypes.push(payload.type);
 			return { ...state, types: newTypes };
+		case "toggleSearchType":
+			let newSearchTypes = state.searchTypes.filter(t => t !== payload.type);
+			if (payload.checked)
+				newSearchTypes.push(payload.type);
+			return { ...state, searchTypes: newSearchTypes };
 		case "setImageEnabled":
 			return { ...state, imageEnabled: payload };
 		case "setImageWeight":
