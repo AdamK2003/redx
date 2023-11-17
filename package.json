@@ -7,7 +7,8 @@
     "test": "npx uvu",
     "spider": "node bin/spider.js",
     "server": "node bin/server.js",
-    "dump": "node bin/dump.js"
+    "dump": "node bin/dump.js",
+    "init": "node bin/init.js"
   },
   "repository": {
     "type": "git",
