@@ -103,7 +103,7 @@ async function indexDirectoryRecord(rec) {
 			if (isRecordIgnored(child_1))
 				return;
 			console.log(`indexDirectoryRecord ${recordToString(rec)} added/updated child ${recordToString(child_1)}`);
-			return db.indexPendingRecord(child_1);
+			return db.indexPendingRecord(child_1, true);
 		}), // index new records as pending
 		...localChildren.map(child_2 => {
 			if (apiChildrenById.has(child_2.id))
@@ -273,7 +273,7 @@ async function rescan() {
 			return;
 		pendingRecordsByUri.add(uri); // prevent adding more dupes
 		count++;
-		return db.indexPendingRecord(rec);
+		return db.indexPendingRecord(rec, true);
 	});
 	console.log(`rescan added ${count} pending directory records`);
 }
@@ -296,7 +296,7 @@ async function asyncMain() {
 			throw new Error(`Record ${getRecordUri(recordStub)} not found.`);
 
 		console.log(`index ${recordToString(record)}`);
-		await db.indexPendingRecord(record);
+		await db.indexPendingRecord(record, true);
 	} else if(action === "rescan") {
 		await rescan();
 	}
