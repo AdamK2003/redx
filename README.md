@@ -19,7 +19,7 @@ RedX is a Resonite public folder/item indexer and search engine.
 1. Clone this repository, run `npm i` to install dependencies. (Make sure you're running NodeJS 16 before doing this, otherwise the dependency install might fail)
 2. Copy `.env.example` to `.env` and fill in the required values.
 3. `cd` to the `redx-frontend` directory, run `npm i` to install dependencies and `npm run build` to build the frontend.
-4. Set up Meilisearch: create 2 indexes named `redx-records-res` and `redx-pending-records-res` with the primary key set to `id` and set the settings for both of them (you can add more filterable/sortable attributes if you want to):
+4. Set up Meilisearch: create 2 indexes named `redx-records-res` and `redx-pending-records-res` with the primary key set to `id` and set the settings for both of them (you can add more filterable/sortable/searchable attributes if you want to):
 
 - Filterable attributes:
   ```json
@@ -42,6 +42,20 @@ RedX is a Resonite public folder/item indexer and search engine.
 - Sortable attributes:
   ```json
   ["lastModificationTime", "creationTime"]
+  ```
+- Searchable attributes (not mandatory, but recommended for quicker indexing):
+  ```json
+  [
+    "pathNameSearchable",
+    "ownerPathNameSearchable",
+    "tagsSearchable",
+    "name",
+    "simpleName",
+    "recordType",
+    "ownerName",
+    "tags",
+    "path"
+  ]
   ```
 - Tune the ranking rules to your liking. The default ones are mostly fine, though you may want to add a sort rule on the modification/creation time in the last position.
 
