@@ -12,7 +12,7 @@ RedX is a Resonite public folder/item indexer and search engine.
 ### Requirements
 
 - NodeJS Gallium (16)
-- A Meilisearch deployment and an API key with enough access to search, add and delete documents
+- A Meilisearch 1.3 deployment (1.4 probably won't work) and an API key with enough access to search, add and delete documents
 
 ### Setup
 
