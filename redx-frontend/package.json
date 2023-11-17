@@ -20,6 +20,6 @@
   },
   "scripts": {
     "build:esbuild": "esbuild src/index.jsx --bundle --minify --sourcemap --outfile=build/app.min.js",
-    "build": "mkdir build && cp public/* build/ && npm run build:esbuild"
+    "build": "mkdir -p build && cp public/* build/ && npm run build:esbuild"
   }
 }

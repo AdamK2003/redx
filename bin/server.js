@@ -8,7 +8,7 @@ const assert = require("assert");
 const makeInventoryLink = require("../data/inventorylink");
 const { writePackedObject } = require("../lib/objectloader");
 const { getRecordUri, getRecordIdType, fetchRecord, fetchDirectoryChildren, parseRecordUri, getParentDirectoryRecordStub, isRecordUri, areRecordsEqual, isAssetUri } = require("../lib/cloudx");
-const { searchRecords, searchPendingRecords, getRecord, buildSearchQuery, buildChildrenQuery, MAX_SIZE, buildExactRecordQuery, buildNotDeletedQuery, meiliFilter, meiliJoinFilter, meiliMultiFilter } = require("../lib/db");
+const { searchRecords, getRecord, buildSearchQuery, buildChildrenQuery, MAX_SIZE, buildExactRecordQuery, buildNotDeletedQuery, meiliFilter, meiliJoinFilter, meiliMultiFilter } = require("../lib/db");
 const { sendSearchResponse, buildFulltextQuery, processLocalHits, LINK_ENDPOINT_VERSION, sendBrowseResponse } = require("../lib/server-utils");
 const guillefix = require("../lib/guillefix");
 const routeAliases = require("../lib/route-aliases");
@@ -68,13 +68,12 @@ const listReqParams = [
 
 app.get(defineAlias("search", "/search.:format"), [
 	query("type").toArray(),
-	query("search_type").toArray(),
 	query("q").trim().optional(),
 	query("image_weight").isFloat({ min: 0, max: 1 }).toFloat().optional(),
 	listReqParams,
 ], async (req, res, next) => {
-	let { format, type, q, size, from, v, image_weight, search_type } = _.defaults(matchedData(req), {
-		image_weight: 0, size: 10, from: 0, q: "", v: 0, search_type: ['search_name', 'search_author', 'search_tags']
+	let { format, type, q, size, from, v, image_weight, search_tags } = _.defaults(matchedData(req), {
+		image_weight: 0, size: 10, from: 0, q: "", v: 0, search_tags: true
 	});
 	if(!validateRequest(req)) return;
 
@@ -103,15 +102,8 @@ app.get(defineAlias("search", "/search.:format"), [
 	}).then(async ({ hits: imageSearchHits }) => {
 		// let fulltextQuery = buildFulltextQuery(q, imageSearchHits, image_weight);
 
-
-		let where = [];
-
-		if(search_type.includes('search_name')) where.push('simpleName');
-		if(search_type.includes('search_author')) where.push('ownerName');
-		if(search_type.includes('search_path')) where.push('pathNameSearchable');
-		if(search_type.includes('search_tags')) where.push('tagsSearchable');
-
-		console.log(where)
+		let where = ['simpleName', 'ownerPathNameSearchable'];
+		if(search_tags) where.push('tagsSearchable');
 
 		return await searchRecords(buildSearchQuery(q, types, where), size, from);
 	}).then(({ total, hits }) => {

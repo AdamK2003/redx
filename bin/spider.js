@@ -67,7 +67,7 @@ function handleDeletedDirectoryRecord(rec, localChildren, localPendingChildren) 
 }
 
 async function indexDirectoryRecord(rec) {
-	console.log('indexDirectoryRecord', recordToString(rec));
+	console.log('indexDirectoryRecord', rec);
 	if(isRecordIgnored(rec)) {
 		// delete all indexed children and then itself
 		console.log(`indexDirectoryRecord ${recordToString(rec)} ignored`);
@@ -76,7 +76,7 @@ async function indexDirectoryRecord(rec) {
 
 	let isRecordDeleted = false;
 	const [apiChildren, localChildren, localPendingChildren] = await Promise.all([
-		await cloudx.fetchDirectoryChildren(rec).catch(err => {
+		cloudx.fetchDirectoryChildren(rec).catch(err => {
 			if (cloudx.isPermanentHttpError(err)) {
 				console.log(`indexDirectoryRecord ${recordToString(rec)} http error ${err.message || err}`);
 				isRecordDeleted = true;
@@ -87,10 +87,10 @@ async function indexDirectoryRecord(rec) {
 		await db.searchRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res => res.hits),
 		await db.searchPendingRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res_1 => res_1.hits),
 	]);
-
-
-	if (isRecordDeleted) return handleDeletedDirectoryRecord(localChildren, localPendingChildren);
-	if (apiChildren.some(child => child.name === ".noindex")) return handleIgnoredDirectoryRecord(rec);
+	if (isRecordDeleted)
+		return handleDeletedDirectoryRecord(localChildren, localPendingChildren);
+	if (apiChildren.some(child => child.name === ".noindex"))
+		return handleIgnoredDirectoryRecord(rec);
 	const apiChildrenById = indexBy(apiChildren, "id");
 	const localChildrenById = indexBy(localChildren, "id");
 	const localPendingChildrenById = indexBy(localPendingChildren, "id");
@@ -119,7 +119,6 @@ async function indexDirectoryRecord(rec) {
 			return deletePendingRecord(child_3);
 		}),
 	]);
-	console.log(`indexDirectoryRecord ${recordToString(rec)} done`);
 	return maybeIndexRecord(rec);
 }
 
@@ -192,10 +191,8 @@ let deletedPendingRecordsThisLoop;
 async function indexPendingRecords() {
 	console.log("indexPendingRecords");
 	const records = await db.getSomePendingRecords(BATCH_SIZE)
-	if(!records.length) {
-		console.log('no pending records found')
+	if(!records.length)
 		return;
-	}
 
 	deletedPendingRecordsThisLoop = new Set;
 
@@ -210,17 +207,15 @@ async function indexPendingRecords() {
 			return;
 		}
 
-		// console.log(`processPendingRecord ${recordToString(rec)}`);
-
 		return backOff(async () => {
-			console.log(`spider: processPendingRecord ${recordToString(rec)}`);
+			console.log(`processPendingRecord ${recordToString(rec)}`);
 			if(rec.recordType === "directory")
 				return await indexDirectoryRecord(rec);
 			if(rec.recordType === "link")
 				return await indexLinkRecord(rec);
 			if(rec.recordType === "object")
 				return await indexObjectRecord(rec);
-			if(rec.recordType === "world")
+			if(rec.recordType === "world")d
 				return await indexWorldRecord(rec);
 			return await indexGenericRecord(rec);
 		}).then(() => {

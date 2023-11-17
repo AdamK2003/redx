@@ -16,13 +16,4 @@ export const typeOptions = [
 	{ label: "Audio", value: "audio" },
 	{ label: "Text", value: "text" },
 	{ label: "Binary", value: "binary", tooltip: "Executables, archives..." },
-
-
-];
-
-export const searchTypeOptions = [
-	{ label: "Search: Record Name", value: "search_name" },
-	{ label: "Search: Author", value: "search_author" },
-	{ label: "Search: Full path", value: "search_path" },
-	{ label: "Search: Tags", value: "search_tags" },
 ];
