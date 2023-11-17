@@ -221,7 +221,7 @@ async function indexPendingRecords() {
 				return await indexWorldRecord(rec);
 			return await indexGenericRecord(rec);
 		}).then(async () => {
-			return await deletePendingRecord(rec, wait);
+			return await deletePendingRecord(rec, true);
 		});
 	}, CONCURRENCY);
 
