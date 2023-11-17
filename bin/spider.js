@@ -41,7 +41,7 @@ function handleIgnoredDirectoryRecord(rec) {
 			}),
 			...localPendingChildren.map(child => {
 				console.log(`indexDirectoryRecord ${recordToString(rec)} ignored removed pending child ${recordToString(child)}`);
-				return deletePendingRecord(child);
+				return deletePendingRecord(child, true);
 			})
 		]);
 	}).then(() => {
@@ -59,7 +59,7 @@ function handleDeletedDirectoryRecord(rec, localChildren, localPendingChildren) 
 			if(child.recordType === "directory") // don't delete pending child directories, in case they were moved somewhere else
 				return;
 			console.log(`indexDirectoryRecord ${recordToString(rec)} deleted removed pending child ${recordToString(child)}`);
-			return deletePendingRecord(child);
+			return deletePendingRecord(child, true);
 		})
 	]).then(() => {
 		return setRecordDeleted(rec);
@@ -116,7 +116,7 @@ async function indexDirectoryRecord(rec) {
 				return;
 
 			console.log(`indexDirectoryRecord ${recordToString(rec)} removed pending child ${recordToString(child_3)}`);
-			return deletePendingRecord(child_3);
+			return deletePendingRecord(child_3, true);
 		}),
 	]);
 	return maybeIndexRecord(rec);
@@ -175,7 +175,7 @@ async function indexGenericRecord(rec) {
 	await maybeIndexRecord(rec);
 }
 
-async function deletePendingRecord(rec) {
+async function deletePendingRecord(rec, wait = false) {
 	const uri = cloudx.getRecordUri(rec);
 	if(deletedPendingRecordsThisLoop.has(uri)) {
 		console.log(`deletePendingRecord ${recordToString(rec)} already deleted`);
@@ -183,7 +183,7 @@ async function deletePendingRecord(rec) {
 	}
 
 	deletedPendingRecordsThisLoop.add(uri);
-	await db.deletePendingRecord(rec);
+	await db.deletePendingRecord(rec, wait);
 	return true;
 }
 
@@ -221,7 +221,7 @@ async function indexPendingRecords() {
 				return await indexWorldRecord(rec);
 			return await indexGenericRecord(rec);
 		}).then(async () => {
-			return await deletePendingRecord(rec);
+			return await deletePendingRecord(rec, wait);
 		});
 	}, CONCURRENCY);
 
