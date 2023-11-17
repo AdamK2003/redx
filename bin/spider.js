@@ -215,7 +215,7 @@ async function indexPendingRecords() {
 				return await indexLinkRecord(rec);
 			if(rec.recordType === "object")
 				return await indexObjectRecord(rec);
-			if(rec.recordType === "world")d
+			if(rec.recordType === "world")
 				return await indexWorldRecord(rec);
 			return await indexGenericRecord(rec);
 		}).then(() => {
