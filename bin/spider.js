@@ -14,7 +14,7 @@ const { isRecordIgnored } = require("../lib/ignorelist-utils");
 const roots = require("../data/roots");
 const { fetchRecordCached } = require("../lib/cloudx-cache");
 
-const CONCURRENCY = 1;
+const CONCURRENCY = 4;
 const BATCH_SIZE = 16;
 
 async function handleLinkRecordInIgnoredDirectory(rec) {
@@ -187,7 +187,9 @@ async function deletePendingRecord(rec) {
 	return true;
 }
 
+// let indexedRecordsCache = new Set;
 let deletedPendingRecordsThisLoop;
+
 async function indexPendingRecords() {
 	console.log("indexPendingRecords");
 	const records = await db.getSomePendingRecords(BATCH_SIZE)
@@ -218,8 +220,8 @@ async function indexPendingRecords() {
 			if(rec.recordType === "world")
 				return await indexWorldRecord(rec);
 			return await indexGenericRecord(rec);
-		}).then(() => {
-			return deletePendingRecord(rec);
+		}).then(async () => {
+			return await deletePendingRecord(rec);
 		});
 	}, CONCURRENCY);
 
