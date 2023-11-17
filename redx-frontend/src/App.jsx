@@ -43,6 +43,7 @@ function AppSidebar({ state, dispatch }) {
 						onChange={e => dispatch({ type: "toggleSearchType", payload: { type: o.value, checked: e.target.checked } })}
 					>{o.label}</Checkbox>
 				))}
+				<div className="AppSidebar-info">Searching with tags will probably return more search results, but they can be less relevant.</div>
 			</Space>
 		</>
 	);
