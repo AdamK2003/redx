@@ -75,7 +75,9 @@ function RecordInfo({ record }) {
 			{record.thumbnailUri && <RecordInfoItem title="Thumbnail" content={
 				<RecordThumbnail name={record.name} thumbnailUri={record.thumbnailUri} />
 			} />}
-			<RecordInfoItem title="Tags" content={record.tags.join(' ')} />
+			{/* <RecordInfoItem title="Created" content={record.creationTime} /> */}
+			{/* <RecordInfoItem title="Modified" content={record.lastModificationTime} /> */}
+			<RecordInfoItem title="Tags" content={record.tags.join(', ')} />
 			{copyHelper}
 		</div>
 	);
