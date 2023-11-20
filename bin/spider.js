@@ -263,7 +263,7 @@ async function rescan() {
 	const [records, pendingRecords] = await Promise.all([
 		getAllDirectoryRecords(),
 		db.searchPendingRecords({
-			term: { recordType: "directory" }
+			filter: "(recordType = 'directory')"
 		}, Infinity).then(res => res.hits)
 	]);
 	console.log(`rescan ${records.length} records, ${pendingRecords.length} pending records`);
