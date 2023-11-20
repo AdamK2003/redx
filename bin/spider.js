@@ -235,7 +235,7 @@ async function indexPendingRecords() {
 }
 
 async function getAllDirectoryRecords(inclDeleted = false) {
-	const filter = [
+	let filter = [
 	"(recordType = 'directory')",
 	];
 	if(!inclDeleted)
