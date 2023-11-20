@@ -111,7 +111,7 @@ app.get(defineAlias("search", "/search.:format"), [
 		if(search_type.includes('search_path')) where.push('pathNameSearchable');
 		if(search_type.includes('search_tags')) where.push('tagsSearchable');
 
-		console.log(where)
+		// console.log(where)
 
 		return await searchRecords(buildSearchQuery(q, types, where), size, from);
 	}).then(({ total, hits }) => {

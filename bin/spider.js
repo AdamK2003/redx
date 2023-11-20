@@ -74,6 +74,8 @@ async function indexDirectoryRecord(rec) {
 		return handleIgnoredDirectoryRecord(rec);
 	}
 
+	maybeIndexRecord(rec);
+
 	let isRecordDeleted = false;
 	const [apiChildren, localChildren, localPendingChildren] = await Promise.all([
 		cloudx.fetchDirectoryChildren(rec).catch(err => {
@@ -87,10 +89,14 @@ async function indexDirectoryRecord(rec) {
 		await db.searchRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res => res.hits),
 		await db.searchPendingRecords(db.buildChildrenQuery(rec), db.MAX_SIZE).then(res_1 => res_1.hits),
 	]);
-	if (isRecordDeleted)
+	if (isRecordDeleted) {
+		console.log(`indexDirectoryRecord ${recordToString(rec)} deleted`);
 		return handleDeletedDirectoryRecord(localChildren, localPendingChildren);
-	if (apiChildren.some(child => child.name === ".noindex"))
+	}
+	if (apiChildren.some(child => child.name === ".noindex")) {
+		console.log(`indexDirectoryRecord ${recordToString(rec)} .noindex`);
 		return handleIgnoredDirectoryRecord(rec);
+	}
 	const apiChildrenById = indexBy(apiChildren, "id");
 	const localChildrenById = indexBy(localChildren, "id");
 	const localPendingChildrenById = indexBy(localPendingChildren, "id");
@@ -119,7 +125,7 @@ async function indexDirectoryRecord(rec) {
 			return deletePendingRecord(child_3, true);
 		}),
 	]);
-	return maybeIndexRecord(rec);
+	
 }
 
 async function indexLinkRecord(rec) {
