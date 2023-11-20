@@ -294,7 +294,7 @@ async function asyncMain() {
 	if(action === "index") {
 		const recordStub = process.argv[3] && cloudx.parseRecordUri(process.argv[3]);
 		if(!recordStub) {
-			console.error("Usage: spider.js reindex RECORD_URI");
+			console.error("Usage: spider.js index RECORD_URI");
 			process.exit(1);
 		}
 		const record = await fetchRecordCached(recordStub);
