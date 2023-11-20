@@ -239,7 +239,7 @@ async function getAllDirectoryRecords(inclDeleted = false) {
 	"(recordType = 'directory')",
 	];
 	if(!inclDeleted)
-		filter = db.meiliJoinFilter(filter, meiliFilter('isDeleted', false));
+		filter = db.meiliJoinFilter([filter, db.meiliFilter('isDeleted', false)], 'AND');
 
 	const res = await db.searchRecords({
 		filter: filter,
