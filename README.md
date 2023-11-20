@@ -3,6 +3,8 @@
 Public instance (this fork): https://redx.adamski2003.lol/
 Public instance (original): https://redx.cloudns.org/
 
+Modified facet: `resrec:///U-AdamSkI2003/R-7AC884DF712F5F78E4D089C995C8B7171BC6F21CA975EE37F3D3900CA82F886E`
+
 RedX is a Resonite public folder/item indexer and search engine.
 
 ## Run it yourself
