@@ -21,7 +21,7 @@ RedX is a Resonite public folder/item indexer and search engine.
 1. Clone this repository, run `npm i` to install dependencies. (Make sure you're running NodeJS 16 before doing this, otherwise the dependency install might fail)
 2. Copy `.env.example` to `.env` and fill in the required values.
 3. `cd` to the `redx-frontend` directory, run `npm i` to install dependencies and `npm run build` to build the frontend.
-4. Set up the Meilisearch indexes. You can just run `npm run init` and it'll do everything for you.
+4. Set up the Meilisearch indexes. You can just run `npm run init` in the root directory and it'll do everything for you.
 
 - If you want to do it manually: create 2 indexes named `redx-records-res` and `redx-pending-records-res` with the primary key set to `id` and set the settings for both of them (you can add more filterable/sortable/searchable attributes if you want to):
 
