@@ -90,7 +90,6 @@ function RecordInfo({ record }) {
 				})
 			}
 		}
-		// record.assetUrls = assetUrls;
 	}
 
 	let [copyHelper, copy] = useCopyHelper();
