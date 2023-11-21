@@ -47,6 +47,52 @@ function RecordInfoItem({ title, content, className }) {
 }
 
 function RecordInfo({ record }) {
+	console.log(record)
+
+
+	let assetUrls = [];
+	if(record.recordType === "object") {
+		for (let type of ['asset', 'thumbnail', 'texture']) {
+			if (record[type + 'Uri']) {
+				let assetType = type
+				let assetUri = record[type + 'Uri']
+				// console.log(assetUri)
+				let assetId = assetUri.split("/").pop().split(".")[0]
+				let assetExt = assetUri.split(".").pop()
+				let assetDirectUrl = assetUri.startsWith("http") ? assetUri : undefined
+				// console.log(assetDirectUrl)
+
+				assetUrls.push({
+					type: assetType,
+					uri: assetUri,
+					id: assetId,
+					ext: assetExt,
+					directUrl: assetDirectUrl,
+				})
+			}
+		}
+
+		for (let tag of record.tags) {
+			if(['raw_file_asset', 'clip_asset'].includes(tag.split(":")[0])) {
+				let assetType = tag.split(":")[0].split("_").slice(0, -1).join("_");
+				let assetUri = tag.split(":").slice(1).join(":");
+				// console.log(assetUri)
+				let assetId = assetUri.split("/").pop().split(".")[0];
+				let assetExt = assetUri.split(".").pop();
+				let assetDirectUrl = assetUri.startsWith("http") ? assetUri : undefined;
+
+				assetUrls.push({
+					type: assetType,
+					uri: assetUri,
+					id: assetId,
+					ext: assetExt,
+					directUrl: assetDirectUrl,
+				})
+			}
+		}
+		// record.assetUrls = assetUrls;
+	}
+
 	let [copyHelper, copy] = useCopyHelper();
 
 	let copyParentUri = useCallback((depth) => {
@@ -56,6 +102,8 @@ function RecordInfo({ record }) {
 	let pathItems = record.path.split("\\").slice(1).map((name, i) => (
 		<Button className="RecordInfo-pathItem" key={i} size="small" onClick={e => copyParentUri(i + 1)}>{stripRichText(name)}</Button>
 	));
+
+	
 
 	let recordTypeName = record.type;
 	for (let o of typeOptions)
@@ -78,6 +126,19 @@ function RecordInfo({ record }) {
 			{/* <RecordInfoItem title="Created" content={record.creationTime} /> */}
 			{/* <RecordInfoItem title="Modified" content={record.lastModificationTime} /> */}
 			<RecordInfoItem title="Tags" content={record.tags.join(', ')} />
+			<RecordInfoItem className="--path" title={
+				<>
+					Assets <span>(click to download, label is asset type)</span>
+				</>
+			} content={assetUrls.map(o => (
+				<Button 
+					className="RecordInfo-assetUri" 
+					key={`/asset/${o.id}${o.ext?`?format=${o.ext}`:''}`} 
+					size="medium" 
+					onClick={e => window.open(o.directUrl ? o.directUrl : `/asset/${o.id}${o.ext?`?format=${o.ext}`:''}`, '_blank')}>
+						{o.type + (o.directUrl ? ' (url)' : (o.ext?` (${o.ext})`:''))}
+				</Button>
+			))} />
 			{copyHelper}
 		</div>
 	);
