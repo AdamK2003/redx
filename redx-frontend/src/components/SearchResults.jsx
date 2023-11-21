@@ -127,16 +127,18 @@ function RecordInfo({ record }) {
 			<RecordInfoItem title="Tags" content={record.tags.join(', ')} />
 			<RecordInfoItem className="--path" title={
 				<>
-					Assets <span>(click to download, label is asset type)</span>
+					Assets <span>(label is asset type)</span>
 				</>
 			} content={assetUrls.map(o => (
-				<Button 
-					className="RecordInfo-assetUri" 
-					key={`/asset/${o.id}${o.ext?`?format=${o.ext}`:''}`} 
-					size="medium" 
-					onClick={e => window.open(o.directUrl ? o.directUrl : `/asset/${o.id}${o.ext?`?format=${o.ext}`:''}`, '_blank')}>
+				<div className="RecordInfo-assetUri">
+					<a
+						// size="medium" 
+						href={o.directUrl ? o.directUrl : `/asset/${o.id}${o.ext?`?format=${o.ext}`:''}`}
+						target="_blank"
+					>
 						{o.type + (o.directUrl ? ' (url)' : (o.ext?` (${o.ext})`:''))}
-				</Button>
+					</a>
+				</div>
 			))} />
 			{copyHelper}
 		</div>

@@ -22,3 +22,12 @@
 .RecordInfoItem .Record-thumbnail img{max-width: 100%;}
 .RecordInfoItem.--path .RecordInfoItem-content{display: flex;flex-flow: row wrap;gap: 5px;}
 .RecordInfoItem.--path .RecordInfoItem-content button{white-space: normal;height: auto;}
+
+
+.RecordInfoItem.--path .RecordInfo-assetUri { /* make them look like buttons */
+  /* cursor: pointer; */
+  background: rgba(128, 215, 233, 0.466);
+  padding: 2px 4px;
+  border: 0;
+  appearance: none;
+}
