@@ -79,6 +79,7 @@ function RecordInfo({ record }) {
 				// console.log(assetUri)
 				let assetId = assetUri.split("/").pop().split(".")[0];
 				let assetExt = assetUri.split(".")[1] || undefined;
+				if(assetExt.startsWith("resdb")) assetExt = 'image';
 				let assetDirectUrl = assetUri.startsWith("http") ? assetUri : undefined;
 
 				assetUrls.push({
@@ -133,7 +134,7 @@ function RecordInfo({ record }) {
 				<div className="RecordInfo-assetUri">
 					<a
 						// size="medium" 
-						href={o.directUrl ? o.directUrl : `/asset/${o.id}${o.ext?`?format=${o.ext}`:''}`}
+						href={o.directUrl ? o.directUrl : `/asset/${o.id}${(o.ext&&o.ext!='image')?`?format=${o.ext}`:''}`}
 						target="_blank"
 					>
 						{o.type + (o.directUrl ? ' (url)' : (o.ext?` (${o.ext})`:''))}
