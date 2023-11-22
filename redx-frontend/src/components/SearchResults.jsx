@@ -79,7 +79,7 @@ function RecordInfo({ record }) {
 				// console.log(assetUri)
 				let assetId = assetUri.split("/").pop().split(".")[0];
 				let assetExt = assetUri.split(".")[1] || undefined;
-				if(assetExt?.startsWith("resdb")) assetExt = 'image';
+				if(assetType == 'texture') assetExt = 'image';
 				let assetDirectUrl = assetUri.startsWith("http") ? assetUri : undefined;
 
 				assetUrls.push({
