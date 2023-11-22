@@ -241,7 +241,7 @@ async function getAllDirectoryRecords(inclDeleted = false) {
 	if(!inclDeleted)
 		filter = db.meiliJoinFilter([filter, db.meiliFilter('isDeleted', false)], 'AND');
 
-	const res = await db.searchRecords({
+	const res = await db.getFilteredRecords({
 		filter: filter,
 	}, Infinity, 0);
 
@@ -262,7 +262,7 @@ async function deleteIgnoredDirectories() {
 async function rescan() {
 	const [records, pendingRecords] = await Promise.all([
 		getAllDirectoryRecords(),
-		db.searchPendingRecords({
+		db.getFilteredPendingRecords({
 			filter: "(recordType = 'directory')"
 		}, Infinity).then(res => res.hits)
 	]);
