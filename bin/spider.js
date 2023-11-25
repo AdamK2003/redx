@@ -137,12 +137,12 @@ async function indexLinkRecord(rec) {
 }
 
 async function indexObjectRecord(rec) {
-	console.log('indexObjectRecord', recordToString(rec));
+	// console.log('indexObjectRecord', recordToString(rec));
 	if(isRecordIgnored(rec))
 		return setRecordDeleted(rec);
 
 	let desc = describeRecord(rec), describedRec = rec;
-	console.log(desc);
+	// console.log(desc);
 
 	if(desc.worldUri) {
 		console.log(`indexObjectRecord ${recordToString(rec)} worldUri ${desc.worldUri}`);
