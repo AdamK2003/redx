@@ -247,12 +247,12 @@ async function indexPendingRecords() {
 
 async function getAllDirectoryRecords(inclDeleted = false) {
 	let filter = [
-	"(recordType = 'directory')",
+	db.meiliFilter('recordType', 'directory'),
 	];
 	if(!inclDeleted)
 		filter = db.meiliJoinFilter([filter, db.meiliFilter('isDeleted', false)], 'AND');
 
-	const res = await db.searchRecords({
+	const res = await db.getFilteredRecords({
 		filter: filter,
 	}, Infinity, 0);
 
