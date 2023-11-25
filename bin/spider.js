@@ -145,8 +145,8 @@ async function indexObjectRecord(rec) {
 	console.log(desc);
 
 	if(desc.worldUri)
-		console.log(`indexObjectRecord ${recordToString(rec)} worldUri ${describedRec.worldUri}`);
-		maybeIndexPendingRecord(rec.worldUri);
+		console.log(`indexObjectRecord ${recordToString(rec)} worldUri ${desc.worldUri}`);
+		await maybeFetchAndIndexPendingRecordUri(rec.worldUri);
 
 	if(desc.objectType) { // have enough info in record
 		console.log(`indexObjectRecord ${recordToString(rec)} description`, desc);
