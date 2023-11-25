@@ -292,7 +292,7 @@ async function rescan() {
 		count++;
 		return db.indexPendingRecord(rec, true);
 	});
-	db.waitForTasks({
+	await db.waitForTasks({
 		indexes: ["pending"]
 	});
 	console.log(`rescan added ${count} pending directory records`);
