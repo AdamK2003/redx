@@ -137,10 +137,12 @@ async function indexLinkRecord(rec) {
 }
 
 async function indexObjectRecord(rec) {
+	console.log('indexObjectRecord', recordToString(rec));
 	if(isRecordIgnored(rec))
 		return setRecordDeleted(rec);
 
 	let desc = describeRecord(rec), describedRec = rec;
+	console.log(desc);
 	if(desc.objectType) { // have enough info in record
 		console.log(`indexObjectRecord ${recordToString(rec)} description`, desc);
 		describedRec = _.extend(rec, desc);
@@ -154,6 +156,7 @@ async function indexObjectRecord(rec) {
 	}
 
 	if(describedRec.worldUri)
+		console.log(`indexObjectRecord ${recordToString(rec)} worldUri ${describedRec.worldUri}`);
 		await maybeIndexPendingRecord(rec.worldUri);
 
 	await maybeIndexRecord(describedRec);
