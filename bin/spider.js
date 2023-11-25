@@ -163,6 +163,7 @@ async function indexObjectRecord(rec) {
 }
 
 async function indexWorldRecord(rec) {
+	console.log('indexWorldRecord', recordToString(rec));
 	if(isRecordIgnored(rec))
 		return setRecordDeleted(rec);
 
@@ -201,6 +202,9 @@ let deletedPendingRecordsThisLoop;
 
 async function indexPendingRecords() {
 	console.log("indexPendingRecords");
+	await db.waitForTasks({
+		indexes: ["pending"]
+	})
 	const records = await db.getSomePendingRecords(BATCH_SIZE)
 	if(!records.length)
 		return;
