@@ -67,7 +67,7 @@ function handleDeletedDirectoryRecord(rec, localChildren, localPendingChildren) 
 }
 
 async function indexDirectoryRecord(rec) {
-	console.log('indexDirectoryRecord', rec);
+	console.log('indexDirectoryRecord', recordToString(rec));
 	if(isRecordIgnored(rec)) {
 		// delete all indexed children and then itself
 		console.log(`indexDirectoryRecord ${recordToString(rec)} ignored`);
