@@ -66,4 +66,8 @@ RedX is a Resonite public folder/item indexer and search engine.
 5. `cd` back to the root directory and run `npm run server` to start the server. (You won't see any items in the frontend until you run the spider for the first time.) You can use a systemd service or a process manager like PM2 to keep the server running in the background and run it on system startup.
 6. Run the spider with `npm run spider`. This will take a while to finish, but you should see items appearing in the frontend as they're indexed. You can use a cronjob to run this on a schedule.
 
+## Stop RedX from indexing your folder
+
+Check [ignorelist.js](https://github.com/AdamK2003/redx/blob/main/data/ignorelist.js) for instructions.
+
 ![](doc/red.jpg)
